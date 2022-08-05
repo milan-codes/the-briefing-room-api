@@ -1,0 +1,4 @@
+__pycache__
+datacache
+env
+app.db
