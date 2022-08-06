@@ -2,15 +2,14 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import fastf1
+from blueprints.quali import quali
+from blueprints.gpinfo import gpinfo
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-db = SQLAlchemy(app)
+app.register_blueprint(quali)
+app.register_blueprint(gpinfo)
 
 fastf1.Cache.enable_cache("./datacache")
-fastf1.get_event_schedule(2022)
-
-# Loads weekend into cache
 
 @app.route('/')
 def index():
