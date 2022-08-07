@@ -22,21 +22,21 @@ def getGrandPrixInfo():
 @gpinfo.route('/racecalendar')
 def getYearlySchedule():
     year = int(request.args.get('year'))
-    withTelemetry = request.args.get('withTelemetry') == 'true'
     includeAll = request.args.get('includeAll') == 'true'
 
+    eventsDict = {}
     try:
-        events = ff1.get_event_schedule(year).to_json(orient='records')
+        mainEvent = ff1.get_event_schedule(year).to_json(orient='records')
+        eventsDict[year] = json.loads(mainEvent)
     except:
         return Response("Data not found", status=404)
 
     if includeAll:
         for i in range(year+1, datetime.datetime.now().year + 1):
             try:
-                events2 = (ff1.get_event_schedule(i)).to_json(orient='records')
+                additionalEvent = (ff1.get_event_schedule(i)).to_json(orient='records')
+                eventsDict[i] = json.loads(additionalEvent)
             except:
                 return Response("Data not found for year {}".format(i), status=404)
 
-    dictA = {2021: json.loads(events)}
-    dictB = {2022: json.loads(events2)}
-    return json.dumps({**dictA, **dictB}, indent=4)
+    return json.dumps(eventsDict, indent=4)
