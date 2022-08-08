@@ -24,19 +24,19 @@ def getYearlySchedule():
     year = int(request.args.get('year'))
     includeAll = request.args.get('includeAll') == 'true'
 
-    eventsDict = {}
+    seasons = []
     try:
-        mainEvent = ff1.get_event_schedule(year).to_json(orient='records')
-        eventsDict[year] = json.loads(mainEvent)
+        mainSeason = ff1.get_event_schedule(year).to_json(orient='records')
+        seasons.append({ "year": year, "events": json.loads(mainSeason) })
     except:
         return Response("Data not found", status=404)
 
     if includeAll:
         for i in range(year+1, datetime.datetime.now().year + 1):
             try:
-                additionalEvent = (ff1.get_event_schedule(i)).to_json(orient='records')
-                eventsDict[i] = json.loads(additionalEvent)
+                additionalSeason = (ff1.get_event_schedule(i)).to_json(orient='records')
+                seasons.append({ "year": i, "events": json.loads(additionalSeason) })
             except:
                 return Response("Data not found for year {}".format(i), status=404)
 
-    return json.dumps(eventsDict, indent=4)
+    return json.dumps(seasons, indent=4)
