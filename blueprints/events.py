@@ -4,9 +4,9 @@ import pandas as pd
 import json
 import datetime
 
-gpinfo = Blueprint('gpinfo', __name__, template_folder='blueprints')
+events = Blueprint('events', __name__, template_folder='blueprints')
 
-@gpinfo.route('/grandprix')
+@events.route('/grandprix')
 def getGrandPrixInfo():
     year = int(request.args.get('year'))
     round = int(request.args.get('round'))
@@ -19,7 +19,7 @@ def getGrandPrixInfo():
     parsedEvent = json.loads(seriesToJson)
     return json.dumps(parsedEvent, indent=4)
 
-@gpinfo.route('/racecalendar')
+@events.route('/racecalendar')
 def getYearlySchedule():
     year = int(request.args.get('year'))
     includeAll = request.args.get('includeAll') == 'true'
@@ -40,3 +40,19 @@ def getYearlySchedule():
                 return Response("Data not found for year {}".format(i), status=404)
 
     return json.dumps(seasons, indent=4)
+
+@events.route("/session")
+def getSessionInfo():
+    year = int(request.args.get('year'))
+    round = int(request.args.get('round'))
+    session = int(request.args.get('session'))
+    try:
+        session = ff1.get_session(year, round, session)
+        session.load()
+    except:
+        return Response("Session not found", status=404)
+    
+    drivers = session.drivers
+    result = {"drivers": drivers, "laps": json.loads(session.laps.to_json(orient='records'))}
+
+    return result
