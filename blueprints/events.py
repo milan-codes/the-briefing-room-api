@@ -56,3 +56,28 @@ def getSessionInfo():
     result = {"drivers": drivers, "laps": json.loads(session.laps.to_json(orient='records'))}
 
     return result
+
+@events.route("/lap")
+def getLapInfo():
+    year = int(request.args.get('year'))
+    round = int(request.args.get('round'))
+    session = int(request.args.get('session'))
+    driver = int(request.args.get('driver'))
+    lap = int(request.args.get('lap'))
+
+    try:
+        session = ff1.get_session(year, round, session)
+        session.load()
+    except:
+        return Response("Session not found", status=404)
+
+    try:
+        driverLaps = session.laps.pick_driver(driver)
+        lapData = driverLaps[driverLaps['LapNumber'] == lap].iloc[0]
+    except:
+        return Response("No data for driver {} in round {} of {} for lap {}".format(driver, round, year, lap), status=400)
+    
+    print(lapData)
+    carData = lapData.get_car_data()
+
+    return carData.to_json(orient='records')
