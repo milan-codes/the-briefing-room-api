@@ -77,7 +77,6 @@ def getLapInfo():
     except:
         return Response("No data for driver {} in round {} of {} for lap {}".format(driver, round, year, lap), status=400)
     
-    print(lapData)
-    carData = lapData.get_car_data()
+    carData = lapData.get_car_data().add_distance()
 
     return carData.to_json(orient='records')
