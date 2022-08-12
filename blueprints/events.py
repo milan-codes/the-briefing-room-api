@@ -52,8 +52,7 @@ def getSessionInfo():
     except:
         return Response("Session not found", status=404)
     
-    drivers = session.drivers
-    result = {"drivers": drivers, "laps": json.loads(session.laps.to_json(orient='records'))}
+    result = {"results": json.loads(session.results.to_json(orient='records')), "laps": json.loads(session.laps.to_json(orient='records'))}
 
     return result
 
@@ -62,7 +61,7 @@ def getLapInfo():
     year = int(request.args.get('year'))
     round = int(request.args.get('round'))
     session = int(request.args.get('session'))
-    driver = int(request.args.get('driver'))
+    driver = request.args.get('driver')
     lap = int(request.args.get('lap'))
 
     try:
