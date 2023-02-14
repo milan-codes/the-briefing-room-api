@@ -6,15 +6,13 @@ standings = Blueprint('standings', __name__, template_folder='blueprints')
 
 @standings.route('/standings')
 def getStandings():
-    reqYear = request.args.get('year')
-    reqRound = request.args.get('round')
+    reqSeason = request.args.get('season')
 
-    if not reqYear or not reqRound:
+    if not reqSeason:
         url = "https://ergast.com/api/f1/current/driverStandings.json"
     else:
-        year = int(reqYear)
-        round = int(reqRound)
-        url = "https://ergast.com/api/f1/{}/{}/driverStandings.json".format(year, round)
+        year = int(reqSeason)
+        url = "https://ergast.com/api/f1/{}/driverStandings.json".format(year)
         
     response = requests.get(url)
     data = response.json()
