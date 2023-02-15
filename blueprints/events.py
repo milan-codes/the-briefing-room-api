@@ -3,6 +3,7 @@ import fastf1 as ff1
 import pandas as pd
 import json
 import datetime
+import requests
 
 events = Blueprint('events', __name__, template_folder='blueprints')
 
@@ -79,3 +80,21 @@ def getLapInfo():
     carData = lapData.get_car_data().add_distance()
 
     return carData.to_json(orient='records')
+
+@events.route("/classification")
+def getClassification():
+    year = int(request.args.get('year'))
+    round = int(request.args.get('round'))
+    session = int(request.args.get('session'))
+    try:
+        session = ff1.get_session(year, round, session)
+        session.load()
+    except:
+        return Response("Session not found", status=404)
+
+    url = "https://ergast.com/api/f1/{}/{}/driverStandings.json".format(year, round)
+    response = requests.get(url)
+    data = response.json()
+    drivers_standings = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings'] 
+
+    return { "classification": json.loads(session.results.to_json(orient='records')), "standings": drivers_standings }
