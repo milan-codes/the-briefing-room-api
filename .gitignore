@@ -3,3 +3,4 @@ datacache
 env
 venv
 app.db
+.DS_Store
