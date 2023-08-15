@@ -5,7 +5,11 @@ import pandas as pd
 import json
 import datetime
 import requests
+import logging
 
+from flask import Flask
+
+app = Flask(__name__)
 events = Blueprint('events', __name__, template_folder='blueprints')
 ergast = Ergast(result_type='pandas', auto_cast=True)
 
@@ -18,6 +22,8 @@ def getGrandPrixInfo():
     qualiResults = None
     sprintResults = None
     raceResults = None
+    wdcStandings = None
+    wccStandings = None
 
     if name:
         try:
@@ -31,6 +37,13 @@ def getGrandPrixInfo():
                     sprintResults = ergast.get_sprint_results(int(year), event.RoundNumber)
             if event.Session5DateUtc < currentDate:
                 raceResults = ergast.get_race_results(int(year), event.RoundNumber)
+
+            if event.Session5DateUtc < currentDate:
+                wdcStandings = ergast.get_driver_standings(int(year), event.RoundNumber)
+                wccStandings = ergast.get_constructor_standings(int(year), event.RoundNumber)
+            else:
+                wdcStandings = ergast.get_driver_standings("current")
+                wccStandings = ergast.get_constructor_standings("current")
         except:
             return Response("Grand Prix not found", status=404)
     else:
@@ -48,6 +61,10 @@ def getGrandPrixInfo():
         parsedEvent['sprintResults'] = json.loads(sprintResults.content[0].to_json(orient='records'))
     if raceResults:
         parsedEvent['raceResults'] = json.loads(raceResults.content[0].to_json(orient='records'))
+    if wdcStandings:
+        parsedEvent['wdcStandings'] = json.loads(wdcStandings.content[0].to_json(orient='records'))
+    if wccStandings:
+        parsedEvent['wccStandings'] = json.loads(wccStandings.content[0].to_json(orient='records'))
 
     return json.dumps(parsedEvent, indent=4)
 
