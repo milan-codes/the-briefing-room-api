@@ -15,13 +15,12 @@
 
 ### Installation
 
-1. In order to run the web application locally, you need to install and run [The Briefing Room API](https://github.com/milan-codes/the-briefing-room-api).
-2. Clone this repository with: `git clone git@github.com:milan-codes/the-briefing-room-api.git`
-3. Navigate to the folder and create a directory called `datacache`, which will cache the data received by FastF1: `mkdir datacache`
-4. Create a virtual environment for Flask: `python3 -m venv venv`
-5. Activate the virtual environment: `source venv/bin/activate` (use the script that'll work with your sell, the available scripts can be seen in `venv/bin`)
-6. Install the requirements recursively: `pip3 install requirements.txt`
-7. Start the dev server: `python3 app.py`
+1. Clone this repository with: `git clone git@github.com:milan-codes/the-briefing-room-api.git`
+2. Navigate to the folder and create a directory called `datacache`, which will cache the data received by FastF1: `mkdir datacache`
+3. Create a virtual environment for Flask: `python3 -m venv venv`
+4. Activate the virtual environment: `source venv/bin/activate` (use the script that'll work with your sell, the available scripts can be seen in `venv/bin`)
+5. Install the requirements recursively: `pip3 install requirements.txt`
+6. Start the dev server: `python3 app.py`
 
 After stopping the server, you can deactivate the virtual environment by simply typing `deactivate`
 
