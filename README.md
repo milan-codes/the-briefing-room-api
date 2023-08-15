@@ -18,7 +18,7 @@
 1. Clone this repository with: `git clone git@github.com:milan-codes/the-briefing-room-api.git`
 2. Navigate to the folder and create a directory called `datacache`, which will cache the data received by FastF1: `mkdir datacache`
 3. Create a virtual environment for Flask: `python3 -m venv venv`
-4. Activate the virtual environment: `source venv/bin/activate` (use the script that'll work with your sell, the available scripts can be seen in `venv/bin`)
+4. Activate the virtual environment: `source venv/bin/activate` (use the script that'll work with your shell, the available scripts can be seen in `venv/bin`)
 5. Install the requirements recursively: `pip3 install requirements.txt`
 6. Start the dev server: `python3 app.py`
 
@@ -32,4 +32,4 @@ Contributions are welcomed! If you have coding skills, insights, or ideas to imp
 
 ## Disclaimer
 
-The creator of this web application is in no way, shape or form linked to FORMULA 1, Liberty Media, the FIA or any other organization. This website was created only for fun, and educational purposes and it does not generate any revenue. All rights belong to their respective owners. Any insights or data derived from the app should be regarded as unofficial and for informational purposes only.
+The creator of this project is in no way, shape or form linked to FORMULA 1, Liberty Media, the FIA or any other organization. This project was created only for fun, and educational purposes and it does not generate any revenue. All rights belong to their respective owners. Any insights or data derived from the app should be regarded as unofficial and for informational purposes only.
