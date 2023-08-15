@@ -1,11 +1,13 @@
 from flask import Blueprint, request, Response
 import fastf1 as ff1
+from fastf1.ergast import Ergast
 import pandas as pd
 import json
 import datetime
 import requests
 
 events = Blueprint('events', __name__, template_folder='blueprints')
+ergast = Ergast(result_type='pandas', auto_cast=True)
 
 @events.route('/grandprix')
 def getGrandPrixInfo():
@@ -13,9 +15,22 @@ def getGrandPrixInfo():
     round = request.args.get('round')
     name = request.args.get('name')
 
+    qualiResults = None
+    sprintResults = None
+    raceResults = None
+
     if name:
         try:
             event = ff1.get_event(int(year), name)
+            currentDate = datetime.datetime.now()
+
+            if event.Session4DateUtc < currentDate:
+                if event.EventFormat == "conventional":
+                    qualiResults = ergast.get_qualifying_results(int(year), event.RoundNumber)
+                else:
+                    sprintResults = ergast.get_sprint_results(int(year), event.RoundNumber)
+            if event.Session5DateUtc < currentDate:
+                raceResults = ergast.get_race_results(int(year), event.RoundNumber)
         except:
             return Response("Grand Prix not found", status=404)
     else:
@@ -26,6 +41,14 @@ def getGrandPrixInfo():
 
     seriesToJson = event.to_json()
     parsedEvent = json.loads(seriesToJson)
+
+    if qualiResults:
+        parsedEvent['qualifyingResults'] = json.loads(qualiResults.content[0].to_json(orient='records'))
+    if sprintResults:
+        parsedEvent['sprintResults'] = json.loads(sprintResults.content[0].to_json(orient='records'))
+    if raceResults:
+        parsedEvent['raceResults'] = json.loads(raceResults.content[0].to_json(orient='records'))
+
     return json.dumps(parsedEvent, indent=4)
 
 @events.route('/racecalendar')
