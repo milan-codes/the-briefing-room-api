@@ -9,12 +9,20 @@ events = Blueprint('events', __name__, template_folder='blueprints')
 
 @events.route('/grandprix')
 def getGrandPrixInfo():
-    year = int(request.args.get('year'))
-    round = int(request.args.get('round'))
-    try:
-        event = ff1.get_event(year, round)
-    except:
-        return Response("Grand Prix not found", status=404)
+    year = request.args.get('year')
+    round = request.args.get('round')
+    name = request.args.get('name')
+
+    if name:
+        try:
+            event = ff1.get_event(int(year), name)
+        except:
+            return Response("Grand Prix not found", status=404)
+    else:
+        try:
+            event = ff1.get_event(int(year), int(round))
+        except:
+            return Response("Grand Prix not found", status=404)
 
     seriesToJson = event.to_json()
     parsedEvent = json.loads(seriesToJson)
