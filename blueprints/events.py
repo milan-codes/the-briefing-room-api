@@ -213,10 +213,14 @@ def getStandings():
     try:
         wdcStandings = ergast.get_driver_standings(year, round)
         wccStandings = ergast.get_constructor_standings(year, round)
+
     except:
         return Response("Standings not found", status=404)
 
-    return {
-        "wdc": json.loads(wdcStandings.content[0].to_json(orient="records")),
-        "wcc": json.loads(wccStandings.content[0].to_json(orient="records")),
-    }
+    response = {}
+    response["wdc"] = json.loads(wdcStandings.content[0].to_json(orient="records"))
+
+    if len(wccStandings.content) > 0:
+        response["wcc"] = json.loads(wccStandings.content[0].to_json(orient="records"))
+
+    return response
