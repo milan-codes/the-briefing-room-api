@@ -62,23 +62,23 @@ def getGrandPrixInfo():
     seriesToJson = event.to_json()
     parsedEvent = json.loads(seriesToJson)
 
-    if qualiResults:
+    if qualiResults and len(qualiResults.content) > 0:
         parsedEvent["qualifyingResults"] = json.loads(
             qualiResults.content[0].to_json(orient="records")
         )
-    if sprintResults:
+    if sprintResults and len(sprintResults.content) > 0:
         parsedEvent["sprintResults"] = json.loads(
             sprintResults.content[0].to_json(orient="records")
         )
-    if raceResults:
+    if raceResults and len(raceResults.content) > 0:
         parsedEvent["raceResults"] = json.loads(
             raceResults.content[0].to_json(orient="records")
         )
-    if wdcStandings:
+    if wdcStandings and len(wdcStandings.content) > 0:
         parsedEvent["wdcStandings"] = json.loads(
             wdcStandings.content[0].to_json(orient="records")
         )
-    if wccStandings:
+    if wccStandings and len(wccStandings.content) > 0:
         parsedEvent["wccStandings"] = json.loads(
             wccStandings.content[0].to_json(orient="records")
         )
