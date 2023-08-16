@@ -10,14 +10,15 @@ import logging
 from flask import Flask
 
 app = Flask(__name__)
-events = Blueprint('events', __name__, template_folder='blueprints')
-ergast = Ergast(result_type='pandas', auto_cast=True)
+events = Blueprint("events", __name__, template_folder="blueprints")
+ergast = Ergast(result_type="pandas", auto_cast=True)
 
-@events.route('/grandprix')
+
+@events.route("/grandprix")
 def getGrandPrixInfo():
-    year = request.args.get('year')
-    round = request.args.get('round')
-    name = request.args.get('name')
+    year = request.args.get("year")
+    round = request.args.get("round")
+    name = request.args.get("name")
 
     qualiResults = None
     sprintResults = None
@@ -32,15 +33,21 @@ def getGrandPrixInfo():
 
             if event.Session4DateUtc < currentDate:
                 if event.EventFormat == "conventional":
-                    qualiResults = ergast.get_qualifying_results(int(year), event.RoundNumber)
+                    qualiResults = ergast.get_qualifying_results(
+                        int(year), event.RoundNumber
+                    )
                 else:
-                    sprintResults = ergast.get_sprint_results(int(year), event.RoundNumber)
+                    sprintResults = ergast.get_sprint_results(
+                        int(year), event.RoundNumber
+                    )
             if event.Session5DateUtc < currentDate:
                 raceResults = ergast.get_race_results(int(year), event.RoundNumber)
 
             if event.Session5DateUtc < currentDate:
                 wdcStandings = ergast.get_driver_standings(int(year), event.RoundNumber)
-                wccStandings = ergast.get_constructor_standings(int(year), event.RoundNumber)
+                wccStandings = ergast.get_constructor_standings(
+                    int(year), event.RoundNumber
+                )
             else:
                 wdcStandings = ergast.get_driver_standings("current")
                 wccStandings = ergast.get_constructor_standings("current")
@@ -56,62 +63,78 @@ def getGrandPrixInfo():
     parsedEvent = json.loads(seriesToJson)
 
     if qualiResults:
-        parsedEvent['qualifyingResults'] = json.loads(qualiResults.content[0].to_json(orient='records'))
+        parsedEvent["qualifyingResults"] = json.loads(
+            qualiResults.content[0].to_json(orient="records")
+        )
     if sprintResults:
-        parsedEvent['sprintResults'] = json.loads(sprintResults.content[0].to_json(orient='records'))
+        parsedEvent["sprintResults"] = json.loads(
+            sprintResults.content[0].to_json(orient="records")
+        )
     if raceResults:
-        parsedEvent['raceResults'] = json.loads(raceResults.content[0].to_json(orient='records'))
+        parsedEvent["raceResults"] = json.loads(
+            raceResults.content[0].to_json(orient="records")
+        )
     if wdcStandings:
-        parsedEvent['wdcStandings'] = json.loads(wdcStandings.content[0].to_json(orient='records'))
+        parsedEvent["wdcStandings"] = json.loads(
+            wdcStandings.content[0].to_json(orient="records")
+        )
     if wccStandings:
-        parsedEvent['wccStandings'] = json.loads(wccStandings.content[0].to_json(orient='records'))
+        parsedEvent["wccStandings"] = json.loads(
+            wccStandings.content[0].to_json(orient="records")
+        )
 
     return json.dumps(parsedEvent, indent=4)
 
-@events.route('/racecalendar')
+
+@events.route("/racecalendar")
 def getYearlySchedule():
-    year = int(request.args.get('year'))
-    includeAll = request.args.get('includeAll') == 'true'
+    year = int(request.args.get("year"))
+    includeAll = request.args.get("includeAll") == "true"
 
     seasons = []
     try:
-        mainSeason = ff1.get_event_schedule(year).to_json(orient='records')
-        seasons.append({ "year": year, "events": json.loads(mainSeason) })
+        mainSeason = ff1.get_event_schedule(year).to_json(orient="records")
+        seasons.append({"year": year, "events": json.loads(mainSeason)})
     except:
         return Response("Data not found", status=404)
 
     if includeAll:
-        for i in range(year+1, datetime.datetime.now().year + 1):
+        for i in range(year + 1, datetime.datetime.now().year + 1):
             try:
-                additionalSeason = (ff1.get_event_schedule(i)).to_json(orient='records')
-                seasons.append({ "year": i, "events": json.loads(additionalSeason) })
+                additionalSeason = (ff1.get_event_schedule(i)).to_json(orient="records")
+                seasons.append({"year": i, "events": json.loads(additionalSeason)})
             except:
                 return Response("Data not found for year {}".format(i), status=404)
 
     return json.dumps(seasons, indent=4)
 
+
 @events.route("/session")
 def getSessionInfo():
-    year = int(request.args.get('year'))
-    round = int(request.args.get('round'))
-    session = int(request.args.get('session'))
+    year = int(request.args.get("year"))
+    round = int(request.args.get("round"))
+    session = int(request.args.get("session"))
     try:
         session = ff1.get_session(year, round, session)
         session.load()
     except:
         return Response("Session not found", status=404)
-    
-    result = {"results": json.loads(session.results.to_json(orient='records')), "laps": json.loads(session.laps.to_json(orient='records'))}
+
+    result = {
+        "results": json.loads(session.results.to_json(orient="records")),
+        "laps": json.loads(session.laps.to_json(orient="records")),
+    }
 
     return result
 
+
 @events.route("/lap")
 def getLapInfo():
-    year = int(request.args.get('year'))
-    round = int(request.args.get('round'))
-    session = int(request.args.get('session'))
-    driver = request.args.get('driver')
-    lap = int(request.args.get('lap'))
+    year = int(request.args.get("year"))
+    round = int(request.args.get("round"))
+    session = int(request.args.get("session"))
+    driver = request.args.get("driver")
+    lap = int(request.args.get("lap"))
 
     try:
         session = ff1.get_session(year, round, session)
@@ -121,19 +144,25 @@ def getLapInfo():
 
     try:
         driverLaps = session.laps.pick_driver(driver)
-        lapData = driverLaps[driverLaps['LapNumber'] == lap].iloc[0]
+        lapData = driverLaps[driverLaps["LapNumber"] == lap].iloc[0]
     except:
-        return Response("No data for driver {} in round {} of {} for lap {}".format(driver, round, year, lap), status=400)
-    
+        return Response(
+            "No data for driver {} in round {} of {} for lap {}".format(
+                driver, round, year, lap
+            ),
+            status=400,
+        )
+
     carData = lapData.get_car_data().add_distance()
 
-    return carData.to_json(orient='records')
+    return carData.to_json(orient="records")
+
 
 @events.route("/classification")
 def getClassification():
-    year = int(request.args.get('year'))
-    round = int(request.args.get('round'))
-    session = int(request.args.get('session'))
+    year = int(request.args.get("year"))
+    round = int(request.args.get("round"))
+    session = int(request.args.get("session"))
     try:
         session = ff1.get_session(year, round, session)
         session.load()
@@ -143,6 +172,51 @@ def getClassification():
     url = "https://ergast.com/api/f1/{}/{}/driverStandings.json".format(year, round)
     response = requests.get(url)
     data = response.json()
-    drivers_standings = data['MRData']['StandingsTable']['StandingsLists'][0]['DriverStandings'] 
+    drivers_standings = data["MRData"]["StandingsTable"]["StandingsLists"][0][
+        "DriverStandings"
+    ]
 
-    return { "classification": json.loads(session.results.to_json(orient='records')), "standings": drivers_standings }
+    return {
+        "classification": json.loads(session.results.to_json(orient="records")),
+        "standings": drivers_standings,
+    }
+
+
+@events.route("/race-classification")
+def getRaceClassification():
+    year = int(request.args.get("year"))
+    round = request.args.get("round")
+
+    if not round:
+        round = "last"
+    else:
+        round = int(round)
+
+    try:
+        classification = ergast.get_race_results(year, round)
+    except:
+        return Response("Classification not found", status=404)
+
+    return classification.content[0].to_json(orient="records")
+
+
+@events.route("/standings")
+def getStandings():
+    year = int(request.args.get("year"))
+    round = request.args.get("round")
+
+    if not round:
+        round = "last"
+    else:
+        round = int(round)
+
+    try:
+        wdcStandings = ergast.get_driver_standings(year, round)
+        wccStandings = ergast.get_constructor_standings(year, round)
+    except:
+        return Response("Standings not found", status=404)
+
+    return {
+        "wdc": json.loads(wdcStandings.content[0].to_json(orient="records")),
+        "wcc": json.loads(wccStandings.content[0].to_json(orient="records")),
+    }
